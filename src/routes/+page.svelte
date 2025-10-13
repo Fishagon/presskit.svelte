@@ -1,11 +1,37 @@
 <script>
         import '../lib/styles/global.css';
+
+        const basicGameExample = `<script>
+  import { GamePresskit } from 'presskit.svelte';
+
+  const game = {
+    title: 'My Awesome Game',
+    subtitle: 'An Epic Adventure',
+    developer: 'Studio Name',
+    releaseDate: 'December 2024',
+    platforms: ['PC', 'PlayStation 5', 'Xbox Series X/S'],
+    price: '$29.99',
+    website: 'https://example.com',
+    description: '<p>Your game description here...</p>'
+  };
+
+  const media = [
+    {
+      url: 'https://example.com/screenshot1.jpg',
+      thumbnail: 'https://example.com/screenshot1-thumb.jpg',
+      caption: 'Gameplay screenshot',
+      alt: 'Game screenshot'
+    }
+  ];
+<\/script>
+
+<GamePresskit {game} {media} />`;
 </script>
 
 <div class="presskit-container">
         <div class="demo-header">
-                <h1>Svelte Presskit Component Library</h1>
-                <p>A SvelteKit component library for creating presskit() style press pages</p>
+                <h1>presskit.svelte</h1>
+                <p>A comprehensive SvelteKit component library for creating professional presskit() style press pages.</p>
                 
                 <nav class="demo-nav">
                         <a href="/studio" class="nav-link">Studio Demo</a>
@@ -18,40 +44,75 @@
                         <h2 class="presskit-section-title">Features</h2>
                         <div class="features-list">
                                 <div class="feature-box">
-                                        <h3>🎨 Professional Design</h3>
-                                        <p>Clean, media-focused layouts inspired by presskit() and presskit.html</p>
+                                        <h3>Professional Design</h3>
+                                        <p>Clean, media-focused layouts inspired by presskit() and presskit.html.</p>
                                 </div>
                                 <div class="feature-box">
-                                        <h3>📦 Reusable Components</h3>
-                                        <p>Pre-built components for studios and games with prop-based configuration</p>
+                                        <h3>Reusable Components</h3>
+                                        <p>Pre-built components for studios and games with prop-based configuration.</p>
                                 </div>
                                 <div class="feature-box">
-                                        <h3>🖼️ Media Galleries</h3>
-                                        <p>Image galleries with lightbox, video embeds for YouTube, Vimeo, Twitch</p>
+                                        <h3>Media Galleries</h3>
+                                        <p>Image galleries with lightbox support and video embeds for YouTube, Vimeo, and Twitch.</p>
                                 </div>
                                 <div class="feature-box">
-                                        <h3>💬 Press Quotes</h3>
-                                        <p>Showcase reviews and press coverage with scores and attributions</p>
+                                        <h3>Press Quotes</h3>
+                                        <p>Showcase reviews and press coverage with scores and attributions.</p>
                                 </div>
                                 <div class="feature-box">
-                                        <h3>📱 Responsive</h3>
-                                        <p>Mobile-friendly layouts that work on all devices</p>
+                                        <h3>Team &amp; Credits</h3>
+                                        <p>Display team members, collaborators, and game credits.</p>
                                 </div>
                                 <div class="feature-box">
-                                        <h3>⚡ TypeScript</h3>
-                                        <p>Full TypeScript support with type definitions</p>
+                                        <h3>Awards Section</h3>
+                                        <p>Highlight achievements, nominations, and recognition.</p>
+                                </div>
+                                <div class="feature-box">
+                                        <h3>Additional Links</h3>
+                                        <p>Curate important resources, storefronts, and press assets.</p>
+                                </div>
+                                <div class="feature-box">
+                                        <h3>Responsive Layout</h3>
+                                        <p>Mobile-friendly design with adaptive two-column layouts.</p>
+                                </div>
+                                <div class="feature-box">
+                                        <h3>Optional Sidebar Navigation</h3>
+                                        <p>Sticky navigation that highlights the active section as visitors scroll.</p>
+                                </div>
+                                <div class="feature-box">
+                                        <h3>TypeScript Support</h3>
+                                        <p>Full TypeScript coverage with comprehensive type definitions.</p>
                                 </div>
                         </div>
                 </section>
 
                 <section class="presskit-section">
                         <h2 class="presskit-section-title">Installation</h2>
-                        <pre class="code-block">npm install svelte-presskit</pre>
+                        <pre class="code-block">npm install presskit.svelte</pre>
                 </section>
 
                 <section class="presskit-section">
                         <h2 class="presskit-section-title">Quick Start</h2>
-                        <pre class="code-block">{'<script>'}{'\n'}{'  import { GamePresskit } from \'svelte-presskit\';'}{'\n'}{'  import type { GameInfo } from \'svelte-presskit\';'}{'\n'}{'\n'}{'  const game: GameInfo = {'}{'\n'}{'    title: \'My Awesome Game\','}{'\n'}{'    developer: \'Studio Name\','}{'\n'}{'    description: \'<p>Game description here</p>\''}{'\n'}{'  };'}{'\n'}{'</script>'}{'\n'}{'\n'}{'<GamePresskit {game} />'}</pre>
+                        <pre class="code-block">{basicGameExample}</pre>
+                </section>
+
+                <section class="presskit-section">
+                        <h2 class="presskit-section-title">Component Highlights</h2>
+                        <div class="component-grid">
+                                <div class="component-card">
+                                        <h3>GamePresskit</h3>
+                                        <p>Craft complete game press pages with banners, features, media, quotes, awards, and credits.</p>
+                                </div>
+                                <div class="component-card">
+                                        <h3>StudioPresskit</h3>
+                                        <p>Build studio-level press destinations with team details, project showcases, and brand assets.</p>
+                                </div>
+                        </div>
+                </section>
+
+                <section class="presskit-section">
+                        <h2 class="presskit-section-title">Styling</h2>
+                        <p>Customize the presentation with CSS custom properties such as <code>--color-primary</code>, <code>--color-accent</code>, and <code>--color-background</code> defined in <code>src/lib/styles/global.css</code>.</p>
                 </section>
         </div>
 </div>
@@ -129,5 +190,43 @@
                 font-family: 'Courier New', monospace;
                 font-size: 0.875rem;
                 line-height: 1.6;
+        }
+
+        .component-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 24px;
+        }
+
+        .component-card {
+                background: #FFFFFF;
+                border: 1px solid var(--color-border);
+                padding: 24px;
+                border-radius: 4px;
+        }
+
+        .component-card h3 {
+                margin: 0 0 8px 0;
+                color: var(--color-primary);
+        }
+
+        .component-card p {
+                margin: 0;
+                color: var(--color-text);
+                line-height: 1.6;
+        }
+
+        @media (max-width: 600px) {
+                .demo-header h1 {
+                        font-size: 2.25rem;
+                }
+
+                .demo-header p {
+                        font-size: 1.1rem;
+                }
+
+                .demo-nav {
+                        flex-direction: column;
+                }
         }
 </style>
