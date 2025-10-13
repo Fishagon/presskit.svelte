@@ -1,5 +1,9 @@
 <script>
+        import { base } from '$app/paths';
         import '../lib/styles/global.css';
+
+        const studioHref = `${base}/studio`;
+        const gameHref = `${base}/game`;
 
         const basicGameExample = `<script>
   import { GamePresskit } from 'presskit.svelte';
@@ -34,8 +38,8 @@
                 <p>A comprehensive SvelteKit component library for creating professional presskit() style press pages.</p>
                 
                 <nav class="demo-nav">
-                        <a href="/studio" class="nav-link">Studio Demo</a>
-                        <a href="/game" class="nav-link">Game Demo</a>
+                        <a href={studioHref} class="nav-link">Studio Demo</a>
+                        <a href={gameHref} class="nav-link">Game Demo</a>
                 </nav>
         </div>
 

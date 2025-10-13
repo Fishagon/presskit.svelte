@@ -1,5 +1,8 @@
 <script lang="ts">
+        import { base } from '$app/paths';
         import { GamePresskit } from '$lib';
+
+        const homeHref = `${base}/`;
 
         const game = {
                 title: 'Crystal Realms',
@@ -176,5 +179,5 @@
 />
 
 <div style="padding: 24px; text-align: center; background: #F8F9FA;">
-        <a href="/" style="color: var(--color-accent); text-decoration: none; font-weight: 600;">← Back to Home</a>
+        <a href={homeHref} style="color: var(--color-accent); text-decoration: none; font-weight: 600;">← Back to Home</a>
 </div>
