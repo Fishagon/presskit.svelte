@@ -7,18 +7,21 @@
                 Feature,
                 Credit,
                 Award,
-                BannerImage
-        } from './types';
-        import About from './components/About.svelte';
-        import MediaGallery from './components/MediaGallery.svelte';
-        import VideoEmbed from './components/VideoEmbed.svelte';
-        import PressQuotes from './components/PressQuotes.svelte';
-        import ContactInfo from './components/ContactInfo.svelte';
-        import Credits from './components/Credits.svelte';
-        import Awards from './components/Awards.svelte';
-        import Sidebar from './components/Sidebar.svelte';
-        import './styles/global.css';
-        import { downloadAssetsAsZip, mediaItemsToZipSources } from './utils/archive';
+                BannerImage,
+        } from "./types";
+        import About from "./components/About.svelte";
+        import MediaGallery from "./components/MediaGallery.svelte";
+        import VideoEmbed from "./components/VideoEmbed.svelte";
+        import PressQuotes from "./components/PressQuotes.svelte";
+        import ContactInfo from "./components/ContactInfo.svelte";
+        import Credits from "./components/Credits.svelte";
+        import Awards from "./components/Awards.svelte";
+        import Sidebar from "./components/Sidebar.svelte";
+        import "./styles/global.css";
+        import {
+                downloadAssetsAsZip,
+                mediaItemsToZipSources,
+        } from "./utils/archive";
 
         export let game: GameInfo;
         export let banner: BannerImage | undefined = undefined;
@@ -33,15 +36,44 @@
 
         let isGeneratingMediaZip = false;
 
+        const imageExtensionPattern = /\.(png|jpe?g|gif|webp|svg)$/i;
+
+        function isImageSource(value?: string): boolean {
+                if (!value) {
+                        return false;
+                }
+
+                const normalized = value.split(/[?#]/)[0];
+                return imageExtensionPattern.test(normalized);
+        }
+
+        let isGameTitleImage = false;
+        let gameTitleAlt = "Game title image";
+
+        $: isGameTitleImage = isImageSource(game.title);
+        $: gameTitleAlt =
+                game.titleImageAlt ??
+                game.subtitle ??
+                game.developer ??
+                "Game title image";
+
         $: sections = [
-                { id: 'factsheet', title: 'Factsheet' },
-                { id: 'description', title: 'Description' },
-                features.length > 0 ? { id: 'features', title: 'Features' } : null,
-                videos.length > 0 ? { id: 'trailers', title: 'Trailers & Gameplay' } : null,
-                media.length > 0 ? { id: 'screenshots', title: 'Screenshots' } : null,
-                quotes.length > 0 ? { id: 'reviews', title: 'Reviews & Press' } : null,
-                awards.length > 0 ? { id: 'awards', title: 'Awards' } : null,
-                credits.length > 0 ? { id: 'credits', title: 'Credits' } : null
+                { id: "factsheet", title: "Factsheet" },
+                { id: "description", title: "Description" },
+                features.length > 0
+                        ? { id: "features", title: "Features" }
+                        : null,
+                videos.length > 0
+                        ? { id: "trailers", title: "Trailers & Gameplay" }
+                        : null,
+                media.length > 0
+                        ? { id: "screenshots", title: "Screenshots" }
+                        : null,
+                quotes.length > 0
+                        ? { id: "reviews", title: "Reviews & Press" }
+                        : null,
+                awards.length > 0 ? { id: "awards", title: "Awards" } : null,
+                credits.length > 0 ? { id: "credits", title: "Credits" } : null,
         ].filter((s): s is { id: string; title: string } => s !== null);
 
         async function handleMediaZipDownload() {
@@ -51,12 +83,18 @@
 
                 isGeneratingMediaZip = true;
                 try {
-                        await downloadAssetsAsZip(mediaItemsToZipSources(media), {
-                                archiveName: `${game?.title ?? 'game'} screenshots`,
-                                filenamePrefix: 'screenshot'
-                        });
+                        await downloadAssetsAsZip(
+                                mediaItemsToZipSources(media),
+                                {
+                                        archiveName: `${game?.title ?? "game"} screenshots`,
+                                        filenamePrefix: "screenshot",
+                                },
+                        );
                 } catch (error) {
-                        console.error('Failed to prepare media download', error);
+                        console.error(
+                                "Failed to prepare media download",
+                                error,
+                        );
                 } finally {
                         isGeneratingMediaZip = false;
                 }
@@ -66,12 +104,32 @@
 <div class="presskit-container">
         <header class="presskit-header">
                 {#if banner}
-                        <div class="banner-image">
-                                <img src={banner.url} alt={banner.alt || game.title} />
+                        <div
+                                class="banner-image"
+                                style:height={banner?.height}
+                                style:max-height={banner?.maxHeight}
+                                style:min-height={banner?.minHeight}
+                        >
+                                <img
+                                        src={banner.url}
+                                        alt={banner.alt || game.title}
+                                        style:object-fit={banner?.objectFit}
+                                        style:object-position={banner?.objectPosition}
+                                />
                         </div>
                 {/if}
                 <div class="presskit-grid">
-                        <h1 class="presskit-title">{game.title}</h1>
+                        {#if isGameTitleImage}
+                                <h1 class="presskit-title">
+                                        <img
+                                                class="presskit-title-image"
+                                                src={game.title}
+                                                alt={gameTitleAlt}
+                                        />
+                                </h1>
+                        {:else}
+                                <h1 class="presskit-title">{game.title}</h1>
+                        {/if}
                         {#if game.subtitle}
                                 <p class="presskit-subtitle">{game.subtitle}</p>
                         {/if}
@@ -84,61 +142,135 @@
                 {/if}
                 <div class="presskit-main-content">
                         <div class="two-column-layout">
-                                <section class="presskit-section" id="factsheet">
-                                        <h2 class="presskit-section-title">Factsheet</h2>
-                        <div class="presskit-info-grid">
-                                <div class="presskit-info-item">
-                                        <div class="presskit-info-label">Developer</div>
-                                        <div class="presskit-info-value">{game.developer}</div>
-                                </div>
-
-                                {#if game.releaseDate}
-                                        <div class="presskit-info-item">
-                                                <div class="presskit-info-label">Release Date</div>
-                                                <div class="presskit-info-value">{game.releaseDate}</div>
-                                        </div>
-                                {/if}
-
-                                {#if game.platforms && game.platforms.length > 0}
-                                        <div class="presskit-info-item">
-                                                <div class="presskit-info-label">Platforms</div>
-                                                <div class="presskit-info-value">{game.platforms.join(', ')}</div>
-                                        </div>
-                                {/if}
-
-                                {#if game.price}
-                                        <div class="presskit-info-item">
-                                                <div class="presskit-info-label">Price</div>
-                                                <div class="presskit-info-value">{game.price}</div>
-                                        </div>
-                                {/if}
-
-                                {#if game.website}
-                                        <div class="presskit-info-item">
-                                                <div class="presskit-info-label">Website</div>
-                                                <div class="presskit-info-value">
-                                                        <a href={game.website} target="_blank" rel="noopener noreferrer" class="presskit-link">
-                                                                {game.website}
-                                                        </a>
+                                <section
+                                        class="presskit-section"
+                                        id="factsheet"
+                                >
+                                        <h2 class="presskit-section-title">
+                                                Factsheet
+                                        </h2>
+                                        <div class="presskit-info-grid">
+                                                <div class="presskit-info-item">
+                                                        <div
+                                                                class="presskit-info-label"
+                                                        >
+                                                                Developer
+                                                        </div>
+                                                        <div
+                                                                class="presskit-info-value"
+                                                        >
+                                                                {game.developer}
+                                                        </div>
                                                 </div>
+
+                                                {#if game.releaseDate}
+                                                        <div
+                                                                class="presskit-info-item"
+                                                        >
+                                                                <div
+                                                                        class="presskit-info-label"
+                                                                >
+                                                                        Release
+                                                                        Date
+                                                                </div>
+                                                                <div
+                                                                        class="presskit-info-value"
+                                                                >
+                                                                        {game.releaseDate}
+                                                                </div>
+                                                        </div>
+                                                {/if}
+
+                                                {#if game.platforms && game.platforms.length > 0}
+                                                        <div
+                                                                class="presskit-info-item"
+                                                        >
+                                                                <div
+                                                                        class="presskit-info-label"
+                                                                >
+                                                                        Platforms
+                                                                </div>
+                                                                <div
+                                                                        class="presskit-info-value"
+                                                                >
+                                                                        {game.platforms.join(
+                                                                                ", ",
+                                                                        )}
+                                                                </div>
+                                                        </div>
+                                                {/if}
+
+                                                {#if game.price}
+                                                        <div
+                                                                class="presskit-info-item"
+                                                        >
+                                                                <div
+                                                                        class="presskit-info-label"
+                                                                >
+                                                                        Price
+                                                                </div>
+                                                                <div
+                                                                        class="presskit-info-value"
+                                                                >
+                                                                        {game.price}
+                                                                </div>
+                                                        </div>
+                                                {/if}
+
+                                                {#if game.website}
+                                                        <div
+                                                                class="presskit-info-item"
+                                                        >
+                                                                <div
+                                                                        class="presskit-info-label"
+                                                                >
+                                                                        Website
+                                                                </div>
+                                                                <div
+                                                                        class="presskit-info-value"
+                                                                >
+                                                                        <a
+                                                                                href={game.website}
+                                                                                target="_blank"
+                                                                                rel="noopener noreferrer"
+                                                                                class="presskit-link"
+                                                                        >
+                                                                                {game.website}
+                                                                        </a>
+                                                                </div>
+                                                        </div>
+                                                {/if}
                                         </div>
-                                {/if}
-                        </div>
                                 </section>
 
                                 <div id="description">
-                                        <About title="About {game.title}" content={game.description} />
+                                        <About
+                                                title="About {game.title}"
+                                                content={game.description}
+                                        />
                                 </div>
                         </div>
 
                         {#if features.length > 0}
                                 <section class="presskit-section" id="features">
-                                        <h2 class="presskit-section-title">Features</h2>
+                                        <h2 class="presskit-section-title">
+                                                Features
+                                        </h2>
                                         <div class="features-grid">
                                                 {#each features as feature}
-                                                        <div class="feature-item">
-                                                                <h3 class="feature-title">{feature.title}</h3>
-                                                                <p class="feature-description">{feature.description}</p>
+                                                        <div
+                                                                class="feature-item"
+                                                        >
+                                                                <h3
+                                                                        class="feature-title"
+                                                                >
+                                                                        {feature.title}
+                                                                </h3>
+                                                                <p
+                                                                        class="feature-description"
+                                                                >
+                                                                        {feature.description}
+                                                                </p>
                                                         </div>
                                                 {/each}
                                         </div>
@@ -147,17 +279,28 @@
 
                         {#if videos.length > 0}
                                 <div id="trailers">
-                                        <VideoEmbed title="Trailers & Gameplay" {videos} />
+                                        <VideoEmbed
+                                                title="Trailers & Gameplay"
+                                                {videos}
+                                        />
                                 </div>
                         {/if}
 
                         {#if media.length > 0}
                                 <div id="screenshots">
-                                        <MediaGallery title="Screenshots" {media} />
+                                        <MediaGallery
+                                                title="Screenshots"
+                                                {media}
+                                        />
                                         <div class="zip-download-section">
                                                 {#if mediaZipUrl}
-                                                        <a href={mediaZipUrl} class="zip-download-button" download>
-                                                                Download all images as ZIP
+                                                        <a
+                                                                href={mediaZipUrl}
+                                                                class="zip-download-button"
+                                                                download
+                                                        >
+                                                                Download all
+                                                                images as ZIP
                                                         </a>
                                                 {:else}
                                                         <button
@@ -167,9 +310,13 @@
                                                                 disabled={isGeneratingMediaZip}
                                                         >
                                                                 {#if isGeneratingMediaZip}
-                                                                        Preparing download...
+                                                                        Preparing
+                                                                        download...
                                                                 {:else}
-                                                                        Download all images as ZIP
+                                                                        Download
+                                                                        all
+                                                                        images
+                                                                        as ZIP
                                                                 {/if}
                                                         </button>
                                                 {/if}
@@ -179,7 +326,10 @@
 
                         {#if quotes.length > 0}
                                 <div id="reviews">
-                                        <PressQuotes title="Reviews & Press" {quotes} />
+                                        <PressQuotes
+                                                title="Reviews & Press"
+                                                {quotes}
+                                        />
                                 </div>
                         {/if}
 
@@ -230,6 +380,12 @@
                 margin-bottom: 24px;
         }
 
+        .presskit-title-image {
+                max-width: 100%;
+                height: auto;
+                display: block;
+        }
+
         .zip-download-section {
                 padding: 0 24px 24px;
                 text-align: center;
@@ -268,7 +424,7 @@
         .feature-item {
                 padding: 20px;
                 border: 1px solid var(--color-border);
-                background: #F8F9FA;
+                background: #f8f9fa;
         }
 
         .feature-title {

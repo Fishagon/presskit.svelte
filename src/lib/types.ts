@@ -7,6 +7,7 @@ export interface StudioInfo {
         address?: string;
         phone?: string;
         contact?: ContactInfo;
+        nameImageAlt?: string;
 }
 
 export interface GameInfo {
@@ -18,6 +19,7 @@ export interface GameInfo {
         platforms?: string[];
         price?: string;
         description: string;
+        titleImageAlt?: string;
 }
 
 export interface ContactInfo {
@@ -99,4 +101,14 @@ export interface Award {
 export interface BannerImage {
         url: string;
         alt?: string;
+        /** Optional explicit height for the banner wrapper (e.g. "320px", "40vh"). */
+        height?: string;
+        /** Overrides the default max-height on the banner wrapper. */
+        maxHeight?: string;
+        /** Sets a minimum height for the banner wrapper. */
+        minHeight?: string;
+        /** Controls how the image scales within the banner wrapper. */
+        objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
+        /** Adjusts the anchor point when the image is cropped. */
+        objectPosition?: string;
 }

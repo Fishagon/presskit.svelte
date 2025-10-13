@@ -8,25 +8,28 @@
                 Project,
                 AdditionalLink,
                 LogoAsset,
-                BannerImage
-        } from './types';
-        import About from './components/About.svelte';
-        import MediaGallery from './components/MediaGallery.svelte';
-        import VideoEmbed from './components/VideoEmbed.svelte';
-        import PressQuotes from './components/PressQuotes.svelte';
-        import ContactInfo from './components/ContactInfo.svelte';
-        import Team from './components/Team.svelte';
-        import Projects from './components/Projects.svelte';
-        import LogoIcon from './components/LogoIcon.svelte';
-        import AdditionalLinks from './components/AdditionalLinks.svelte';
-        import Sidebar from './components/Sidebar.svelte';
-        import './styles/global.css';
-        import { downloadAssetsAsZip, mediaItemsToZipSources } from './utils/archive';
+                BannerImage,
+        } from "./types";
+        import About from "./components/About.svelte";
+        import MediaGallery from "./components/MediaGallery.svelte";
+        import VideoEmbed from "./components/VideoEmbed.svelte";
+        import PressQuotes from "./components/PressQuotes.svelte";
+        import ContactInfo from "./components/ContactInfo.svelte";
+        import Team from "./components/Team.svelte";
+        import Projects from "./components/Projects.svelte";
+        import LogoIcon from "./components/LogoIcon.svelte";
+        import AdditionalLinks from "./components/AdditionalLinks.svelte";
+        import Sidebar from "./components/Sidebar.svelte";
+        import "./styles/global.css";
+        import {
+                downloadAssetsAsZip,
+                mediaItemsToZipSources,
+        } from "./utils/archive";
 
         export let studio: StudioInfo;
         export let banner: BannerImage | undefined = undefined;
-        export let description: string = '';
-        export let history: string = '';
+        export let description: string = "";
+        export let history: string = "";
         export let projects: Project[] = [];
         export let media: MediaItem[] = [];
         export let mediaZipUrl: string | undefined = undefined;
@@ -40,18 +43,47 @@
 
         let isGeneratingMediaZip = false;
 
+        const imageExtensionPattern = /\.(png|jpe?g|gif|webp|svg)$/i;
+
+        function isImageSource(value?: string): boolean {
+                if (!value) {
+                        return false;
+                }
+
+                const normalized = value.split(/[?#]/)[0];
+                return imageExtensionPattern.test(normalized);
+        }
+
+        let isStudioNameImage = false;
+        let studioNameAlt = "Studio name image";
+
+        $: isStudioNameImage = isImageSource(studio.name);
+        $: studioNameAlt =
+                studio.nameImageAlt ??
+                studio.description ??
+                studio.basedIn ??
+                "Studio name image";
+
         $: sections = [
-                { id: 'factsheet', title: 'Factsheet' },
-                description ? { id: 'description', title: 'Description' } : null,
-                history ? { id: 'history', title: 'History' } : null,
-                projects.length > 0 ? { id: 'projects', title: 'Projects' } : null,
-                videos.length > 0 ? { id: 'videos', title: 'Videos' } : null,
-                media.length > 0 ? { id: 'images', title: 'Images' } : null,
-                logos.length > 0 ? { id: 'logo', title: 'Logo & Icon' } : null,
-                quotes.length > 0 ? { id: 'articles', title: 'Selected Articles' } : null,
-                additionalLinks.length > 0 ? { id: 'links', title: 'Additional Links' } : null,
-                team.length > 0 ? { id: 'team', title: 'Team' } : null,
-                studio.contact ? { id: 'contact', title: 'Contact' } : null
+                { id: "factsheet", title: "Factsheet" },
+                description
+                        ? { id: "description", title: "Description" }
+                        : null,
+                history ? { id: "history", title: "History" } : null,
+                projects.length > 0
+                        ? { id: "projects", title: "Projects" }
+                        : null,
+                videos.length > 0 ? { id: "videos", title: "Videos" } : null,
+                media.length > 0 ? { id: "images", title: "Images" } : null,
+                logos.length > 0 ? { id: "logo", title: "Logo & Icon" } : null,
+                quotes.length > 0
+                        ? { id: "articles", title: "Selected Articles" }
+                        : null,
+                additionalLinks.length > 0
+                        ? { id: "links", title: "Additional Links" }
+                        : null,
+                team.length > 0 ? { id: "team", title: "Team" } : null,
+                studio.contact ? { id: "contact", title: "Contact" } : null,
         ].filter((s): s is { id: string; title: string } => s !== null);
 
         async function handleMediaZipDownload() {
@@ -61,12 +93,18 @@
 
                 isGeneratingMediaZip = true;
                 try {
-                        await downloadAssetsAsZip(mediaItemsToZipSources(media), {
-                                archiveName: `${studio?.name ?? 'studio'} images`,
-                                filenamePrefix: 'image'
-                        });
+                        await downloadAssetsAsZip(
+                                mediaItemsToZipSources(media),
+                                {
+                                        archiveName: `${studio?.name ?? "studio"} images`,
+                                        filenamePrefix: "image",
+                                },
+                        );
                 } catch (error) {
-                        console.error('Failed to prepare media download', error);
+                        console.error(
+                                "Failed to prepare media download",
+                                error,
+                        );
                 } finally {
                         isGeneratingMediaZip = false;
                 }
@@ -76,12 +114,32 @@
 <div class="presskit-container">
         <header class="presskit-header">
                 {#if banner}
-                        <div class="banner-image">
-                                <img src={banner.url} alt={banner.alt || studio.name} />
+                        <div
+                                class="banner-image"
+                                style:height={banner?.height}
+                                style:max-height={banner?.maxHeight}
+                                style:min-height={banner?.minHeight}
+                        >
+                                <img
+                                        src={banner.url}
+                                        alt={banner.alt || studio.name}
+                                        style:object-fit={banner?.objectFit}
+                                        style:object-position={banner?.objectPosition}
+                                />
                         </div>
                 {/if}
                 <div class="presskit-grid">
-                        <h1 class="presskit-title">{studio.name}</h1>
+                        {#if isStudioNameImage}
+                                <h1 class="presskit-title">
+                                        <img
+                                                class="presskit-title-image"
+                                                src={studio.name}
+                                                alt={studioNameAlt}
+                                        />
+                                </h1>
+                        {:else}
+                                <h1 class="presskit-title">{studio.name}</h1>
+                        {/if}
                         <p class="presskit-subtitle">{studio.description}</p>
                 </div>
         </header>
@@ -92,109 +150,203 @@
                 {/if}
                 <div class="presskit-main-content">
                         <div class="two-column-layout">
-                                <section class="presskit-section" id="factsheet">
-                                        <h2 class="presskit-section-title">Factsheet</h2>
-                        <div class="presskit-info-grid">
-                                {#if studio.founded}
-                                        <div class="presskit-info-item">
-                                                <div class="presskit-info-label">Founded</div>
-                                                <div class="presskit-info-value">{studio.founded}</div>
-                                        </div>
-                                {/if}
-
-                                {#if studio.basedIn}
-                                        <div class="presskit-info-item">
-                                                <div class="presskit-info-label">Based In</div>
-                                                <div class="presskit-info-value">{studio.basedIn}</div>
-                                        </div>
-                                {/if}
-
-                                {#if studio.website}
-                                        <div class="presskit-info-item">
-                                                <div class="presskit-info-label">Website</div>
-                                                <div class="presskit-info-value">
-                                                        <a href={studio.website} target="_blank" rel="noopener noreferrer" class="presskit-link">
-                                                                {studio.website}
-                                                        </a>
-                                                </div>
-                                        </div>
-                                {/if}
-
-                                {#if studio.address}
-                                        <div class="presskit-info-item">
-                                                <div class="presskit-info-label">Address</div>
-                                                <div class="presskit-info-value">{studio.address}</div>
-                                        </div>
-                                {/if}
-
-                                {#if studio.phone}
-                                        <div class="presskit-info-item">
-                                                <div class="presskit-info-label">Phone</div>
-                                                <div class="presskit-info-value">{studio.phone}</div>
-                                        </div>
-                                {/if}
-
-                                {#if studio.contact?.pressContact}
-                                        <div class="presskit-info-item">
-                                                <div class="presskit-info-label">Press Contact</div>
-                                                <div class="presskit-info-value">
-                                                        <a href="mailto:{studio.contact.pressContact}" class="presskit-link">
-                                                                {studio.contact.pressContact}
-                                                        </a>
-                                                </div>
-                                        </div>
-                                {/if}
-
-                                {#if studio.contact?.twitter || studio.contact?.facebook || studio.contact?.instagram}
-                                        <div class="presskit-info-item">
-                                                <div class="presskit-info-label">Social</div>
-                                                <div class="presskit-info-value social-links">
-                                                        {#if studio.contact.twitter}
-                                                                <a
-                                                                        href="https://twitter.com/{studio.contact.twitter}"
-                                                                        target="_blank"
-                                                                        rel="noopener noreferrer"
-                                                                        class="presskit-link"
+                                <section
+                                        class="presskit-section"
+                                        id="factsheet"
+                                >
+                                        <h2 class="presskit-section-title">
+                                                Factsheet
+                                        </h2>
+                                        <div class="presskit-info-grid">
+                                                {#if studio.founded}
+                                                        <div
+                                                                class="presskit-info-item"
+                                                        >
+                                                                <div
+                                                                        class="presskit-info-label"
                                                                 >
-                                                                        Twitter
-                                                                </a>
-                                                        {/if}
-                                                        {#if studio.contact.facebook}
-                                                                <a
-                                                                        href={studio.contact.facebook}
-                                                                        target="_blank"
-                                                                        rel="noopener noreferrer"
-                                                                        class="presskit-link"
+                                                                        Founded
+                                                                </div>
+                                                                <div
+                                                                        class="presskit-info-value"
                                                                 >
-                                                                        Facebook
-                                                                </a>
-                                                        {/if}
-                                                        {#if studio.contact.instagram}
-                                                                <a
-                                                                        href={studio.contact.instagram}
-                                                                        target="_blank"
-                                                                        rel="noopener noreferrer"
-                                                                        class="presskit-link"
+                                                                        {studio.founded}
+                                                                </div>
+                                                        </div>
+                                                {/if}
+
+                                                {#if studio.basedIn}
+                                                        <div
+                                                                class="presskit-info-item"
+                                                        >
+                                                                <div
+                                                                        class="presskit-info-label"
                                                                 >
-                                                                        Instagram
-                                                                </a>
-                                                        {/if}
-                                                </div>
+                                                                        Based In
+                                                                </div>
+                                                                <div
+                                                                        class="presskit-info-value"
+                                                                >
+                                                                        {studio.basedIn}
+                                                                </div>
+                                                        </div>
+                                                {/if}
+
+                                                {#if studio.website}
+                                                        <div
+                                                                class="presskit-info-item"
+                                                        >
+                                                                <div
+                                                                        class="presskit-info-label"
+                                                                >
+                                                                        Website
+                                                                </div>
+                                                                <div
+                                                                        class="presskit-info-value"
+                                                                >
+                                                                        <a
+                                                                                href={studio.website}
+                                                                                target="_blank"
+                                                                                rel="noopener noreferrer"
+                                                                                class="presskit-link"
+                                                                        >
+                                                                                {studio.website}
+                                                                        </a>
+                                                                </div>
+                                                        </div>
+                                                {/if}
+
+                                                {#if studio.address}
+                                                        <div
+                                                                class="presskit-info-item"
+                                                        >
+                                                                <div
+                                                                        class="presskit-info-label"
+                                                                >
+                                                                        Address
+                                                                </div>
+                                                                <div
+                                                                        class="presskit-info-value"
+                                                                >
+                                                                        {studio.address}
+                                                                </div>
+                                                        </div>
+                                                {/if}
+
+                                                {#if studio.phone}
+                                                        <div
+                                                                class="presskit-info-item"
+                                                        >
+                                                                <div
+                                                                        class="presskit-info-label"
+                                                                >
+                                                                        Phone
+                                                                </div>
+                                                                <div
+                                                                        class="presskit-info-value"
+                                                                >
+                                                                        {studio.phone}
+                                                                </div>
+                                                        </div>
+                                                {/if}
+
+                                                {#if studio.contact?.pressContact}
+                                                        <div
+                                                                class="presskit-info-item"
+                                                        >
+                                                                <div
+                                                                        class="presskit-info-label"
+                                                                >
+                                                                        Press
+                                                                        Contact
+                                                                </div>
+                                                                <div
+                                                                        class="presskit-info-value"
+                                                                >
+                                                                        <a
+                                                                                href="mailto:{studio
+                                                                                        .contact
+                                                                                        .pressContact}"
+                                                                                class="presskit-link"
+                                                                        >
+                                                                                {studio
+                                                                                        .contact
+                                                                                        .pressContact}
+                                                                        </a>
+                                                                </div>
+                                                        </div>
+                                                {/if}
+
+                                                {#if studio.contact?.twitter || studio.contact?.facebook || studio.contact?.instagram}
+                                                        <div
+                                                                class="presskit-info-item"
+                                                        >
+                                                                <div
+                                                                        class="presskit-info-label"
+                                                                >
+                                                                        Social
+                                                                </div>
+                                                                <div
+                                                                        class="presskit-info-value social-links"
+                                                                >
+                                                                        {#if studio.contact.twitter}
+                                                                                <a
+                                                                                        href="https://twitter.com/{studio
+                                                                                                .contact
+                                                                                                .twitter}"
+                                                                                        target="_blank"
+                                                                                        rel="noopener noreferrer"
+                                                                                        class="presskit-link"
+                                                                                >
+                                                                                        Twitter
+                                                                                </a>
+                                                                        {/if}
+                                                                        {#if studio.contact.facebook}
+                                                                                <a
+                                                                                        href={studio
+                                                                                                .contact
+                                                                                                .facebook}
+                                                                                        target="_blank"
+                                                                                        rel="noopener noreferrer"
+                                                                                        class="presskit-link"
+                                                                                >
+                                                                                        Facebook
+                                                                                </a>
+                                                                        {/if}
+                                                                        {#if studio.contact.instagram}
+                                                                                <a
+                                                                                        href={studio
+                                                                                                .contact
+                                                                                                .instagram}
+                                                                                        target="_blank"
+                                                                                        rel="noopener noreferrer"
+                                                                                        class="presskit-link"
+                                                                                >
+                                                                                        Instagram
+                                                                                </a>
+                                                                        {/if}
+                                                                </div>
+                                                        </div>
+                                                {/if}
                                         </div>
-                                {/if}
-                        </div>
                                 </section>
 
                                 {#if description}
                                         <div id="description">
-                                                <About title="Description" content={description} />
+                                                <About
+                                                        title="Description"
+                                                        content={description}
+                                                />
                                         </div>
                                 {/if}
                         </div>
 
                         {#if history}
                                 <div id="history">
-                                        <About title="History" content={history} />
+                                        <About
+                                                title="History"
+                                                content={history}
+                                        />
                                 </div>
                         {/if}
 
@@ -212,11 +364,16 @@
 
                         {#if media.length > 0}
                                 <div id="images">
-                                        <MediaGallery title="Images" media={media} />
+                                        <MediaGallery title="Images" {media} />
                                         <div class="zip-download-section">
                                                 {#if mediaZipUrl}
-                                                        <a href={mediaZipUrl} class="zip-download-button" download>
-                                                                Download all images as ZIP
+                                                        <a
+                                                                href={mediaZipUrl}
+                                                                class="zip-download-button"
+                                                                download
+                                                        >
+                                                                Download all
+                                                                images as ZIP
                                                         </a>
                                                 {:else}
                                                         <button
@@ -226,9 +383,13 @@
                                                                 disabled={isGeneratingMediaZip}
                                                         >
                                                                 {#if isGeneratingMediaZip}
-                                                                        Preparing download...
+                                                                        Preparing
+                                                                        download...
                                                                 {:else}
-                                                                        Download all images as ZIP
+                                                                        Download
+                                                                        all
+                                                                        images
+                                                                        as ZIP
                                                                 {/if}
                                                         </button>
                                                 {/if}
@@ -238,19 +399,27 @@
 
                         {#if logos.length > 0}
                                 <div id="logo">
-                                        <LogoIcon assets={logos} zipUrl={logoZipUrl} />
+                                        <LogoIcon
+                                                assets={logos}
+                                                zipUrl={logoZipUrl}
+                                        />
                                 </div>
                         {/if}
 
                         {#if quotes.length > 0}
                                 <div id="articles">
-                                        <PressQuotes title="Selected Articles" {quotes} />
+                                        <PressQuotes
+                                                title="Selected Articles"
+                                                {quotes}
+                                        />
                                 </div>
                         {/if}
 
                         {#if additionalLinks.length > 0}
                                 <div id="links">
-                                        <AdditionalLinks links={additionalLinks} />
+                                        <AdditionalLinks
+                                                links={additionalLinks}
+                                        />
                                 </div>
                         {/if}
 
@@ -305,6 +474,12 @@
                 display: flex;
                 gap: 12px;
                 flex-wrap: wrap;
+        }
+
+        .presskit-title-image {
+                max-width: 100%;
+                height: auto;
+                display: block;
         }
 
         .zip-download-section {
