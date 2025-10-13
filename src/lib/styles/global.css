@@ -1,0 +1,105 @@
+/* Presskit Global Styles */
+:root {
+	--color-primary: #2C3E50;
+	--color-secondary: #34495E;
+	--color-background: #FFFFFF;
+	--color-text: #2C3E50;
+	--color-accent: #3498DB;
+	--color-border: #BDC3C7;
+	--spacing-section: 24px;
+	--spacing-content: 16px;
+}
+
+.presskit-container {
+	font-family: 'Inter', 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	color: var(--color-text);
+	background-color: var(--color-background);
+	line-height: 1.6;
+}
+
+.presskit-header {
+	background-color: var(--color-primary);
+	color: white;
+	padding: 48px 24px;
+	margin-bottom: var(--spacing-section);
+}
+
+.presskit-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin: 0 0 12px 0;
+}
+
+.presskit-subtitle {
+	font-size: 1.25rem;
+	font-weight: 400;
+	opacity: 0.9;
+	margin: 0;
+}
+
+.presskit-section {
+	padding: var(--spacing-section);
+	margin-bottom: var(--spacing-section);
+}
+
+.presskit-section-title {
+	font-size: 1.75rem;
+	font-weight: 600;
+	color: var(--color-primary);
+	margin: 0 0 var(--spacing-content) 0;
+	border-bottom: 2px solid var(--color-accent);
+	padding-bottom: 8px;
+}
+
+.presskit-grid {
+	display: grid;
+	gap: var(--spacing-content);
+	max-width: 1200px;
+	margin: 0 auto;
+}
+
+.presskit-info-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: var(--spacing-content);
+}
+
+.presskit-info-item {
+	padding: var(--spacing-content);
+}
+
+.presskit-info-label {
+	font-weight: 600;
+	color: var(--color-secondary);
+	margin-bottom: 4px;
+	font-size: 0.875rem;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.presskit-info-value {
+	color: var(--color-text);
+}
+
+.presskit-link {
+	color: var(--color-accent);
+	text-decoration: none;
+}
+
+.presskit-link:hover {
+	text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+	.presskit-header {
+		padding: 32px 16px;
+	}
+
+	.presskit-title {
+		font-size: 2rem;
+	}
+
+	.presskit-section {
+		padding: var(--spacing-content);
+	}
+}

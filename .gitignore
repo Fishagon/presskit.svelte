@@ -1,0 +1,37 @@
+# Editor directories and logs
+.vscode/
+*.log
+
+# npm debug files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Mac system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+
+# SvelteKit output
+.svelte-kit
+
+# Build output
+/build
+/dist
+/package
+
+# Node modules
+node_modules
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Vite config artifacts
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Project notes (if not needed in git)
+notes.md
