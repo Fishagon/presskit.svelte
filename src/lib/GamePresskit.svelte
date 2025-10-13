@@ -18,6 +18,7 @@
         import Awards from './components/Awards.svelte';
         import Sidebar from './components/Sidebar.svelte';
         import './styles/global.css';
+        import { downloadAssetsAsZip, mediaItemsToZipSources } from './utils/archive';
 
         export let game: GameInfo;
         export let banner: BannerImage | undefined = undefined;
@@ -30,6 +31,8 @@
         export let awards: Award[] = [];
         export let showSidebar: boolean = false;
 
+        let isGeneratingMediaZip = false;
+
         $: sections = [
                 { id: 'factsheet', title: 'Factsheet' },
                 { id: 'description', title: 'Description' },
@@ -40,6 +43,24 @@
                 awards.length > 0 ? { id: 'awards', title: 'Awards' } : null,
                 credits.length > 0 ? { id: 'credits', title: 'Credits' } : null
         ].filter((s): s is { id: string; title: string } => s !== null);
+
+        async function handleMediaZipDownload() {
+                if (isGeneratingMediaZip || media.length === 0) {
+                        return;
+                }
+
+                isGeneratingMediaZip = true;
+                try {
+                        await downloadAssetsAsZip(mediaItemsToZipSources(media), {
+                                archiveName: `${game?.title ?? 'game'} screenshots`,
+                                filenamePrefix: 'screenshot'
+                        });
+                } catch (error) {
+                        console.error('Failed to prepare media download', error);
+                } finally {
+                        isGeneratingMediaZip = false;
+                }
+        }
 </script>
 
 <div class="presskit-container">
@@ -133,13 +154,26 @@
                         {#if media.length > 0}
                                 <div id="screenshots">
                                         <MediaGallery title="Screenshots" {media} />
-                                        {#if mediaZipUrl}
-                                                <div class="zip-download-section">
+                                        <div class="zip-download-section">
+                                                {#if mediaZipUrl}
                                                         <a href={mediaZipUrl} class="zip-download-button" download>
                                                                 Download all images as ZIP
                                                         </a>
-                                                </div>
-                                        {/if}
+                                                {:else}
+                                                        <button
+                                                                type="button"
+                                                                class="zip-download-button"
+                                                                on:click={handleMediaZipDownload}
+                                                                disabled={isGeneratingMediaZip}
+                                                        >
+                                                                {#if isGeneratingMediaZip}
+                                                                        Preparing download...
+                                                                {:else}
+                                                                        Download all images as ZIP
+                                                                {/if}
+                                                        </button>
+                                                {/if}
+                                        </div>
                                 </div>
                         {/if}
 
@@ -202,18 +236,27 @@
         }
 
         .zip-download-button {
-                display: inline-block;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
                 padding: 12px 24px;
                 background: var(--color-accent);
                 color: white;
                 text-decoration: none;
+                border: none;
                 border-radius: 4px;
                 font-weight: 600;
                 transition: opacity 0.2s;
+                cursor: pointer;
         }
 
         .zip-download-button:hover {
                 opacity: 0.9;
+        }
+
+        .zip-download-button:disabled {
+                opacity: 0.7;
+                cursor: not-allowed;
         }
 
         .features-grid {

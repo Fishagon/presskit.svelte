@@ -1,9 +1,30 @@
 <script lang="ts">
 	import type { LogoAsset } from '../types';
+	import { downloadAssetsAsZip, logoAssetsToZipSources } from '../utils/archive';
 
 	export let title: string = 'Logo & Icon';
 	export let assets: LogoAsset[] = [];
 	export let zipUrl: string | undefined = undefined;
+
+	let isGeneratingZip = false;
+
+	async function handleZipDownload() {
+		if (isGeneratingZip || assets.length === 0) {
+			return;
+		}
+
+		isGeneratingZip = true;
+		try {
+			await downloadAssetsAsZip(logoAssetsToZipSources(assets), {
+				archiveName: `${title} assets`,
+				filenamePrefix: 'asset'
+			});
+		} catch (error) {
+			console.error('Failed to prepare logo download', error);
+		} finally {
+			isGeneratingZip = false;
+		}
+	}
 </script>
 
 <section class="presskit-section">
@@ -12,12 +33,26 @@
 		{#if zipUrl}
 			<a href={zipUrl} class="zip-download" download>
 				<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-					<path
-						d="M8 12l-4-4h2.5V4h3v4H12l-4 4zM2 13h12v2H2v-2z"
-					/>
+					<path d="M8 12l-4-4h2.5V4h3v4H12l-4 4zM2 13h12v2H2v-2z" />
 				</svg>
 				Download ZIP
 			</a>
+		{:else if assets.length > 0}
+			<button
+				type="button"
+				class="zip-download"
+				on:click={handleZipDownload}
+				disabled={isGeneratingZip}
+			>
+				<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+					<path d="M8 12l-4-4h2.5V4h3v4H12l-4 4zM2 13h12v2H2v-2z" />
+				</svg>
+				{#if isGeneratingZip}
+					Preparing...
+				{:else}
+					Download ZIP
+				{/if}
+			</button>
 		{/if}
 	</h2>
 	<div class="logo-grid">
@@ -43,10 +78,20 @@
 		text-decoration: none;
 		font-weight: 500;
 		vertical-align: middle;
+		background: none;
+		border: none;
+		cursor: pointer;
+		padding: 0;
 	}
 
 	.zip-download:hover {
 		text-decoration: underline;
+	}
+
+	.zip-download:disabled {
+		color: var(--color-secondary);
+		cursor: not-allowed;
+		text-decoration: none;
 	}
 
 	.logo-grid {
