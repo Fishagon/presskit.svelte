@@ -1,6 +1,6 @@
 {
   "name": "presskit.svelte",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A SvelteKit component library for creating presskit() style press pages",
   "type": "module",
   "scripts": {
