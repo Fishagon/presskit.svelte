@@ -118,7 +118,7 @@ export async function downloadAssetsAsZip(sources: ZipSource[], options: ZipDown
 export function mediaItemsToZipSources(items: MediaItem[]): ZipSource[] {
         return items.map((item, index) => ({
                 url: item.url,
-                name: item.caption || item.alt || `image-${index + 1}`
+                name: item.caption || item.alt || `media-${index + 1}`
         }));
 }
 

@@ -32,7 +32,9 @@ export interface ContactInfo {
 
 export interface MediaItem {
         url: string;
+        type?: 'image' | 'video';
         thumbnail?: string;
+        poster?: string;
         caption?: string;
         alt?: string;
 }

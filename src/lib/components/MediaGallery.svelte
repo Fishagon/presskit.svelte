@@ -4,20 +4,32 @@
 	export let title: string = 'Screenshots';
 	export let media: MediaItem[] = [];
 
-	let selectedImage: MediaItem | null = null;
+	let selectedMedia: MediaItem | null = null;
 
 	function openLightbox(item: MediaItem) {
-		selectedImage = item;
+		selectedMedia = item;
 	}
 
 	function closeLightbox() {
-		selectedImage = null;
+		selectedMedia = null;
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
 		if (event.key === 'Escape') {
 			closeLightbox();
 		}
+	}
+
+	function isVideo(item: MediaItem): boolean {
+		if (item.type) {
+			return item.type === 'video';
+		}
+		const [, extension = ''] = /\.([a-z0-9]+)$/i.exec(item.url.split(/[?#]/)[0]) || [];
+		return ['mp4', 'webm', 'ogg', 'mov', 'm4v'].includes(extension.toLowerCase());
+	}
+
+	function getThumbnail(item: MediaItem): string {
+		return item.thumbnail || item.poster || item.url;
 	}
 </script>
 
@@ -27,8 +39,26 @@
 	<h2 class="presskit-section-title">{title}</h2>
 	<div class="media-grid">
 		{#each media as item}
-			<button class="media-item" on:click={() => openLightbox(item)} type="button">
-				<img src={item.thumbnail || item.url} alt={item.alt || item.caption || 'Media'} />
+			<button
+				class="media-item"
+				on:click={() => openLightbox(item)}
+				type="button"
+				aria-label={item.alt || item.caption || (isVideo(item) ? 'Video preview' : 'Image preview')}
+			>
+				{#if isVideo(item)}
+					<div class="media-video">
+						<video
+							src={item.url}
+							poster={getThumbnail(item)}
+							muted
+							playsinline
+							preload="metadata"
+						></video>
+						<span class="media-badge">Video</span>
+					</div>
+				{:else}
+					<img src={getThumbnail(item)} alt={item.alt || item.caption || 'Media'} />
+				{/if}
 				{#if item.caption}
 					<div class="media-caption">{item.caption}</div>
 				{/if}
@@ -37,13 +67,22 @@
 	</div>
 </section>
 
-{#if selectedImage}
+{#if selectedMedia}
 	<div class="lightbox" on:click={closeLightbox} role="presentation">
 		<button class="lightbox-close" on:click={closeLightbox} aria-label="Close">×</button>
 		<div class="lightbox-content" on:click|stopPropagation role="presentation">
-			<img src={selectedImage.url} alt={selectedImage.alt || selectedImage.caption || 'Media'} />
-			{#if selectedImage.caption}
-				<div class="lightbox-caption">{selectedImage.caption}</div>
+			{#if isVideo(selectedMedia)}
+				<video
+					src={selectedMedia.url}
+					controls
+					playsinline
+					poster={selectedMedia.poster || selectedMedia.thumbnail}
+				></video>
+			{:else}
+				<img src={selectedMedia.url} alt={selectedMedia.alt || selectedMedia.caption || 'Media'} />
+			{/if}
+			{#if selectedMedia.caption}
+				<div class="lightbox-caption">{selectedMedia.caption}</div>
 			{/if}
 		</div>
 	</div>
@@ -75,6 +114,35 @@
 		height: 200px;
 		object-fit: cover;
 		display: block;
+	}
+
+	.media-video {
+		position: relative;
+		width: 100%;
+		height: 200px;
+		overflow: hidden;
+		background: black;
+	}
+
+	.media-video video {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
+	.media-badge {
+		position: absolute;
+		top: 12px;
+		left: 12px;
+		padding: 4px 8px;
+		font-size: 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: white;
+		background: rgba(0, 0, 0, 0.7);
+		border-radius: 999px;
+		pointer-events: none;
 	}
 
 	.media-caption {
@@ -119,7 +187,8 @@
 		max-height: 90%;
 	}
 
-	.lightbox-content img {
+	.lightbox-content img,
+	.lightbox-content video {
 		max-width: 100%;
 		max-height: calc(90vh - 60px);
 		display: block;
