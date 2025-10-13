@@ -58,5 +58,6 @@
     "type": "git",
     "url": "https://github.com/Fishagon/presskit.svelte"
   },
+  "homepage": "https://fishagon.github.io/presskit.svelte/",
   "license": "MIT"
 }
