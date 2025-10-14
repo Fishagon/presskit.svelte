@@ -36,26 +36,11 @@
 
         let isGeneratingMediaZip = false;
 
-        const imageExtensionPattern = /\.(png|jpe?g|gif|webp|svg)$/i;
-
-        function isImageSource(value?: string): boolean {
-                if (!value) {
-                        return false;
-                }
-
-                const normalized = value.split(/[?#]/)[0];
-                return imageExtensionPattern.test(normalized);
-        }
-
-        let isGameTitleImage = false;
-        let gameTitleAlt = "Game title image";
-
-        $: isGameTitleImage = isImageSource(game.title);
-        $: gameTitleAlt =
-                game.titleImageAlt ??
+        $: gameLogoAlt =
+                game.logoAlt ??
                 game.subtitle ??
                 game.developer ??
-                "Game title image";
+                `${game.title} logo`;
 
         $: headerMinHeight = banner?.height ?? banner?.minHeight;
         $: headerMaxHeight = banner?.maxHeight;
@@ -124,17 +109,14 @@
                         </div>
                 {/if}
                 <div class="presskit-grid">
-                        {#if isGameTitleImage}
-                                <h1 class="presskit-title">
-                                        <img
-                                                class="presskit-title-image"
-                                                src={game.title}
-                                                alt={gameTitleAlt}
-                                        />
-                                </h1>
-                        {:else}
-                                <h1 class="presskit-title">{game.title}</h1>
+                        {#if game.logo}
+                                <img
+                                        class="presskit-logo"
+                                        src={game.logo}
+                                        alt={gameLogoAlt}
+                                />
                         {/if}
+                        <h1 class="presskit-title">{game.title}</h1>
                         {#if game.subtitle}
                                 <p class="presskit-subtitle">{game.subtitle}</p>
                         {/if}
@@ -372,10 +354,11 @@
                 margin-bottom: 24px;
         }
 
-        .presskit-title-image {
+        .presskit-logo {
                 max-width: 100%;
                 height: auto;
                 display: block;
+                margin-bottom: 16px;
         }
 
         .zip-download-section {

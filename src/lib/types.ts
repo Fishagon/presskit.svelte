@@ -7,7 +7,8 @@ export interface StudioInfo {
         address?: string;
         phone?: string;
         contact?: ContactInfo;
-        nameImageAlt?: string;
+        logo?: string;
+        logoAlt?: string;
 }
 
 export interface GameInfo {
@@ -19,7 +20,8 @@ export interface GameInfo {
         platforms?: string[];
         price?: string;
         description: string;
-        titleImageAlt?: string;
+        logo?: string;
+        logoAlt?: string;
 }
 
 export interface ContactInfo {

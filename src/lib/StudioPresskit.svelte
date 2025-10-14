@@ -43,26 +43,11 @@
 
         let isGeneratingMediaZip = false;
 
-        const imageExtensionPattern = /\.(png|jpe?g|gif|webp|svg)$/i;
-
-        function isImageSource(value?: string): boolean {
-                if (!value) {
-                        return false;
-                }
-
-                const normalized = value.split(/[?#]/)[0];
-                return imageExtensionPattern.test(normalized);
-        }
-
-        let isStudioNameImage = false;
-        let studioNameAlt = "Studio name image";
-
-        $: isStudioNameImage = isImageSource(studio.name);
-        $: studioNameAlt =
-                studio.nameImageAlt ??
+        $: studioLogoAlt =
+                studio.logoAlt ??
                 studio.description ??
                 studio.basedIn ??
-                "Studio name image";
+                `${studio.name} logo`;
 
         $: headerMinHeight = banner?.height ?? banner?.minHeight;
         $: headerMaxHeight = banner?.maxHeight;
@@ -134,18 +119,17 @@
                         </div>
                 {/if}
                 <div class="presskit-grid">
-                        {#if isStudioNameImage}
-                                <h1 class="presskit-title">
-                                        <img
-                                                class="presskit-title-image"
-                                                src={studio.name}
-                                                alt={studioNameAlt}
-                                        />
-                                </h1>
-                        {:else}
-                                <h1 class="presskit-title">{studio.name}</h1>
+                        {#if studio.logo}
+                                <img
+                                        class="presskit-logo"
+                                        src={studio.logo}
+                                        alt={studioLogoAlt}
+                                />
                         {/if}
-                        <p class="presskit-subtitle">{studio.description}</p>
+                        <h1 class="presskit-title">{studio.name}</h1>
+                        {#if studio.description}
+                                <p class="presskit-subtitle">{studio.description}</p>
+                        {/if}
                 </div>
         </header>
 
@@ -468,10 +452,11 @@
                 flex-wrap: wrap;
         }
 
-        .presskit-title-image {
+        .presskit-logo {
                 max-width: 100%;
                 height: auto;
                 display: block;
+                margin-bottom: 16px;
         }
 
         .zip-download-section {
