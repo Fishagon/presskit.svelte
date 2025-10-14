@@ -41,6 +41,7 @@ export interface MediaItem {
         poster?: string;
         caption?: string;
         alt?: string;
+        autoplay?: boolean;
 }
 
 export interface VideoEmbed {

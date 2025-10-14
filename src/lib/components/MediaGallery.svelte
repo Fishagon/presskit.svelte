@@ -4,14 +4,25 @@
 	export let title: string = 'Screenshots';
 	export let media: MediaItem[] = [];
 
+	const browser = typeof window !== 'undefined';
+
 	let selectedMedia: MediaItem | null = null;
+	let lightboxVideo: HTMLVideoElement | null = null;
+	let generatedThumbnails: Record<string, string> = {};
+	const generatingThumbnails = new Set<string>();
+	const failedThumbnails = new Set<string>();
 
 	function openLightbox(item: MediaItem) {
 		selectedMedia = item;
 	}
 
 	function closeLightbox() {
+		if (lightboxVideo) {
+			lightboxVideo.pause();
+			lightboxVideo.currentTime = 0;
+		}
 		selectedMedia = null;
+		lightboxVideo = null;
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
@@ -28,8 +39,134 @@
 		return ['mp4', 'webm', 'ogg', 'mov', 'm4v'].includes(extension.toLowerCase());
 	}
 
+	async function requestThumbnail(item: MediaItem) {
+		const key = item.url;
+		if (!browser || generatedThumbnails[key] || generatingThumbnails.has(key) || failedThumbnails.has(key)) {
+			return;
+		}
+
+		generatingThumbnails.add(key);
+		const thumbnail = await generateThumbnail(item);
+		generatingThumbnails.delete(key);
+
+		if (thumbnail) {
+			generatedThumbnails = { ...generatedThumbnails, [key]: thumbnail };
+		} else {
+			failedThumbnails.add(key);
+		}
+	}
+
+	// Capture a random frame to use when videos do not provide a thumbnail/poster.
+	async function generateThumbnail(item: MediaItem): Promise<string | null> {
+		if (!browser) {
+			return null;
+		}
+
+		return new Promise((resolve) => {
+			const video = document.createElement('video');
+			video.crossOrigin = 'anonymous';
+			video.preload = 'auto';
+			video.muted = true;
+			video.playsInline = true;
+			video.src = item.url;
+
+			let captured = false;
+
+			const finalize = (dataUrl: string | null) => {
+				video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+				video.removeEventListener('seeked', handleSeeked);
+				video.removeEventListener('loadeddata', handleLoadedData);
+				video.removeEventListener('error', handleError);
+				video.pause();
+				video.removeAttribute('src');
+				video.load();
+				resolve(dataUrl);
+			};
+
+			const attemptCapture = () => {
+				if (captured || video.readyState < 2) {
+					return;
+				}
+				captured = true;
+
+				try {
+					const canvas = document.createElement('canvas');
+					const width = video.videoWidth;
+					const height = video.videoHeight;
+
+					if (!width || !height) {
+						finalize(null);
+						return;
+					}
+
+					canvas.width = width;
+					canvas.height = height;
+
+					const context = canvas.getContext('2d');
+					if (!context) {
+						finalize(null);
+						return;
+					}
+
+					context.drawImage(video, 0, 0, width, height);
+					finalize(canvas.toDataURL('image/jpeg', 0.82));
+				} catch (error) {
+					console.warn('Unable to capture media thumbnail', error);
+					finalize(null);
+				}
+			};
+
+			const handleLoadedMetadata = () => {
+				const duration = video.duration;
+				const hasDuration = Number.isFinite(duration) && duration > 0.2;
+				if (hasDuration) {
+					const randomTime = Math.random() * duration;
+					const clamped = Math.min(Math.max(randomTime, 0), Math.max(duration - 0.1, 0));
+					if (clamped > 0) {
+						video.currentTime = clamped;
+						return;
+					}
+				}
+				attemptCapture();
+			};
+
+			const handleSeeked = () => {
+				attemptCapture();
+			};
+
+			const handleLoadedData = () => {
+				attemptCapture();
+			};
+
+			const handleError = () => {
+				finalize(null);
+			};
+
+			video.addEventListener('loadedmetadata', handleLoadedMetadata);
+			video.addEventListener('seeked', handleSeeked);
+			video.addEventListener('loadeddata', handleLoadedData);
+			video.addEventListener('error', handleError);
+			video.load();
+		});
+	}
+
 	function getThumbnail(item: MediaItem): string {
-		return item.thumbnail || item.poster || item.url;
+		return item.thumbnail || item.poster || generatedThumbnails[item.url] || item.url;
+	}
+
+	$: if (browser && lightboxVideo && selectedMedia?.autoplay) {
+		const playPromise = lightboxVideo.play();
+		if (playPromise && typeof playPromise.catch === 'function') {
+			playPromise.catch(() => {});
+		}
+	}
+
+	$: if (browser) {
+		media.forEach((item) => {
+			if (isVideo(item) && !item.thumbnail && !item.poster) {
+				void requestThumbnail(item);
+			}
+		});
 	}
 </script>
 
@@ -53,6 +190,7 @@
 							muted
 							playsinline
 							preload="metadata"
+							autoplay={item.autoplay}
 						></video>
 						<span class="media-badge">Video</span>
 					</div>
@@ -76,7 +214,9 @@
 					src={selectedMedia.url}
 					controls
 					playsinline
-					poster={selectedMedia.poster || selectedMedia.thumbnail}
+					poster={getThumbnail(selectedMedia)}
+					autoplay={selectedMedia.autoplay}
+					bind:this={lightboxVideo}
 				></video>
 			{:else}
 				<img src={selectedMedia.url} alt={selectedMedia.alt || selectedMedia.caption || 'Media'} />
