@@ -64,6 +64,9 @@
                 studio.basedIn ??
                 "Studio name image";
 
+        $: headerMinHeight = banner?.height ?? banner?.minHeight;
+        $: headerMaxHeight = banner?.maxHeight;
+
         $: sections = [
                 { id: "factsheet", title: "Factsheet" },
                 description
@@ -112,19 +115,21 @@
 </script>
 
 <div class="presskit-container">
-        <header class="presskit-header">
+        <header
+                class="presskit-header"
+                class:has-banner={!!banner}
+                style:min-height={headerMinHeight}
+                style:max-height={headerMaxHeight}
+        >
                 {#if banner}
                         <div
-                                class="banner-image"
-                                style:height={banner?.height}
-                                style:max-height={banner?.maxHeight}
-                                style:min-height={banner?.minHeight}
+                                class="presskit-banner"
+                                style:--presskit-banner-object-fit={banner?.objectFit ?? "cover"}
+                                style:--presskit-banner-object-position={banner?.objectPosition ?? "center"}
                         >
                                 <img
                                         src={banner.url}
                                         alt={banner.alt || studio.name}
-                                        style:object-fit={banner?.objectFit}
-                                        style:object-position={banner?.objectPosition}
                                 />
                         </div>
                 {/if}
@@ -439,19 +444,6 @@
 </div>
 
 <style>
-        .banner-image {
-                width: 100%;
-                max-height: 400px;
-                overflow: hidden;
-                margin-bottom: -24px;
-        }
-
-        .banner-image img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-        }
-
         .presskit-grid.with-sidebar {
                 display: grid;
                 grid-template-columns: 250px 1fr;
