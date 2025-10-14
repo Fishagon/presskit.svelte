@@ -2,7 +2,7 @@
         import type {
                 GameInfo,
                 MediaItem,
-                VideoEmbed,
+                VideoEmbed as VideoEmbedInfo,
                 PressQuote,
                 Feature,
                 Credit,
@@ -28,7 +28,7 @@
         export let features: Feature[] = [];
         export let media: MediaItem[] = [];
         export let mediaZipUrl: string | undefined = undefined;
-        export let videos: VideoEmbed[] = [];
+        export let videos: VideoEmbedInfo[] = [];
         export let quotes: PressQuote[] = [];
         export let credits: Credit[] = [];
         export let awards: Award[] = [];
@@ -110,13 +110,16 @@
                 {/if}
                 <div class="presskit-grid">
                         {#if game.logo}
-                                <img
-                                        class="presskit-logo"
-                                        src={game.logo}
-                                        alt={gameLogoAlt}
-                                />
+                                <h1 class="presskit-title">
+                                        <img
+                                                class="presskit-logo"
+                                                src={game.logo}
+                                                alt={gameLogoAlt}
+                                        />
+                                </h1>
+                        {:else}
+                                <h1 class="presskit-title">{game.title}</h1>
                         {/if}
-                        <h1 class="presskit-title">{game.title}</h1>
                         {#if game.subtitle}
                                 <p class="presskit-subtitle">{game.subtitle}</p>
                         {/if}

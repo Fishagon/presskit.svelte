@@ -12,6 +12,7 @@
                 platforms: ['PC', 'PlayStation 5', 'Xbox Series X/S', 'Nintendo Switch'],
                 price: '$29.99',
                 website: 'https://crystalrealms.example.com',
+                logo: 'https://crystalrealmsgame.com/assets/logo.png',
                 description: `
                         <p>Crystal Realms is an epic fantasy adventure that takes players on a journey through magical worlds filled with wonder, danger, and mystery. Explore vast landscapes, battle fearsome creatures, and uncover ancient secrets.</p>
                         <p>With stunning visuals powered by the latest graphics technology, immersive storytelling, and engaging gameplay mechanics, Crystal Realms offers an unforgettable gaming experience.</p>

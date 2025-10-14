@@ -2,7 +2,7 @@
         import type {
                 StudioInfo,
                 MediaItem,
-                VideoEmbed,
+                VideoEmbed as VideoEmbedInfo,
                 PressQuote,
                 TeamMember,
                 Project,
@@ -33,7 +33,7 @@
         export let projects: Project[] = [];
         export let media: MediaItem[] = [];
         export let mediaZipUrl: string | undefined = undefined;
-        export let videos: VideoEmbed[] = [];
+        export let videos: VideoEmbedInfo[] = [];
         export let logos: LogoAsset[] = [];
         export let logoZipUrl: string | undefined = undefined;
         export let quotes: PressQuote[] = [];
@@ -125,8 +125,9 @@
                                         src={studio.logo}
                                         alt={studioLogoAlt}
                                 />
+                        {:else}
+                                <h1 class="presskit-title">{studio.name}</h1>
                         {/if}
-                        <h1 class="presskit-title">{studio.name}</h1>
                         {#if studio.description}
                                 <p class="presskit-subtitle">{studio.description}</p>
                         {/if}
