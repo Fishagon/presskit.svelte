@@ -6,6 +6,8 @@
         export let videos: VideoEmbedType[] = [];
         export let twitchParent: string = 'localhost';
 
+        const isLocalVideo = (video: VideoEmbedType): boolean => video.platform === 'local';
+
         function getEmbedUrl(video: VideoEmbedType): string {
                 const url = video.url;
 
@@ -30,13 +32,26 @@
         <div class="video-grid">
                 {#each videos as video}
                         <div class="video-container">
-                                <iframe
-                                        src={getEmbedUrl(video)}
-                                        title={video.title || 'Video'}
-                                        frameborder="0"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                        allowfullscreen
-                                ></iframe>
+                                {#if isLocalVideo(video)}
+                                        <video
+                                                src={video.url}
+                                                poster={video.poster}
+                                                controls
+                                                preload="metadata"
+                                                playsinline
+                                                muted={video.muted ?? video.autoplay ?? false}
+                                                autoplay={video.autoplay}
+                                                loop={video.loop}
+                                        ></video>
+                                {:else}
+                                        <iframe
+                                                src={getEmbedUrl(video)}
+                                                title={video.title || 'Video'}
+                                                frameborder="0"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                allowfullscreen
+                                        ></iframe>
+                                {/if}
                                 {#if video.title}
                                         <div class="video-title">{video.title}</div>
                                 {/if}
@@ -66,6 +81,15 @@
                 left: 0;
                 width: 100%;
                 height: 100%;
+        }
+
+        .video-container video {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: #000;
         }
 
         .video-title {

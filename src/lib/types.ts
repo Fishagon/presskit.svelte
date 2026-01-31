@@ -44,10 +44,22 @@ export interface MediaItem {
         autoplay?: boolean;
 }
 
+export type VideoPlatform = 'youtube' | 'vimeo' | 'twitch' | 'local';
+
 export interface VideoEmbed {
         url: string;
-        platform: 'youtube' | 'vimeo' | 'twitch';
+        platform: VideoPlatform;
         title?: string;
+        poster?: string;
+        /** Optional override for downloadable/alternate file location. */
+        downloadUrl?: string;
+        /** Optional override for the filename used when zipping. */
+        filename?: string;
+        /** Hint for local files; not required for embeds. */
+        mimeType?: string;
+        autoplay?: boolean;
+        loop?: boolean;
+        muted?: boolean;
 }
 
 export interface PressQuote {

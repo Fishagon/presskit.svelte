@@ -21,6 +21,7 @@
         import {
                 downloadAssetsAsZip,
                 mediaItemsToZipSources,
+                videoEmbedsToZipSources,
         } from "./utils/archive";
 
         export let game: GameInfo;
@@ -29,12 +30,19 @@
         export let media: MediaItem[] = [];
         export let mediaZipUrl: string | undefined = undefined;
         export let videos: VideoEmbedInfo[] = [];
+        export let videoZipUrl: string | undefined = undefined;
         export let quotes: PressQuote[] = [];
         export let credits: Credit[] = [];
         export let awards: Award[] = [];
         export let showSidebar: boolean = false;
 
         let isGeneratingMediaZip = false;
+        let isGeneratingVideoZip = false;
+        let downloadableVideos: VideoEmbedInfo[] = [];
+
+        $: downloadableVideos = videos.filter(
+                (video) => video.platform === "local" || Boolean(video.downloadUrl),
+        );
 
         $: gameLogoAlt =
                 game.logoAlt ??
@@ -85,6 +93,30 @@
                         );
                 } finally {
                         isGeneratingMediaZip = false;
+                }
+        }
+
+        async function handleVideoZipDownload() {
+                if (isGeneratingVideoZip || downloadableVideos.length === 0) {
+                        return;
+                }
+
+                isGeneratingVideoZip = true;
+                try {
+                        await downloadAssetsAsZip(
+                                videoEmbedsToZipSources(downloadableVideos),
+                                {
+                                        archiveName: `${game?.title ?? "game"} videos`,
+                                        filenamePrefix: "video",
+                                },
+                        );
+                } catch (error) {
+                        console.error(
+                                "Failed to prepare video download",
+                                error,
+                        );
+                } finally {
+                        isGeneratingVideoZip = false;
                 }
         }
 </script>
@@ -273,6 +305,39 @@
                                                 title="Trailers & Gameplay"
                                                 {videos}
                                         />
+                                        {#if downloadableVideos.length > 0}
+                                                <div class="zip-download-section">
+                                                        {#if videoZipUrl}
+                                                                <a
+                                                                        href={videoZipUrl}
+                                                                        class="zip-download-button"
+                                                                        download
+                                                                >
+                                                                        Download
+                                                                        all
+                                                                        videos
+                                                                        as ZIP
+                                                                </a>
+                                                        {:else}
+                                                                <button
+                                                                        type="button"
+                                                                        class="zip-download-button"
+                                                                        on:click={handleVideoZipDownload}
+                                                                        disabled={isGeneratingVideoZip}
+                                                                >
+                                                                        {#if isGeneratingVideoZip}
+                                                                                Preparing
+                                                                                download...
+                                                                        {:else}
+                                                                                Download
+                                                                                all
+                                                                                videos
+                                                                                as ZIP
+                                                                        {/if}
+                                                                </button>
+                                                        {/if}
+                                                </div>
+                                        {/if}
                                 </div>
                         {/if}
 

@@ -1,4 +1,4 @@
-import type { MediaItem, LogoAsset } from '../types';
+import type { MediaItem, LogoAsset, VideoEmbed } from '../types';
 
 export interface ZipSource {
         url: string;
@@ -120,6 +120,15 @@ export function mediaItemsToZipSources(items: MediaItem[]): ZipSource[] {
                 url: item.url,
                 name: item.caption || item.alt || `media-${index + 1}`
         }));
+}
+
+export function videoEmbedsToZipSources(items: VideoEmbed[]): ZipSource[] {
+        return items
+                .filter((item) => item.platform === 'local' || Boolean(item.downloadUrl))
+                .map((item, index) => ({
+                        url: item.downloadUrl || item.url,
+                        name: item.filename || item.title || `video-${index + 1}`
+                }));
 }
 
 export function logoAssetsToZipSources(assets: LogoAsset[]): ZipSource[] {
