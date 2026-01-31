@@ -27,6 +27,7 @@
         export let game: GameInfo;
         export let banner: BannerImage | undefined = undefined;
         export let features: Feature[] = [];
+        export let description: string | undefined = undefined;
         export let media: MediaItem[] = [];
         export let mediaZipUrl: string | undefined = undefined;
         export let videos: VideoEmbedInfo[] = [];
@@ -297,6 +298,17 @@
                                                 {/each}
                                         </div>
                                 </section>
+                        {/if}
+
+                        {#if description}
+                                <div class="presskit-section" id="description">
+                                        <About
+                                                title={features.length > 0
+                                                        ? "Feature Description"
+                                                        : "Description"}
+                                                content={description}
+                                        />
+                                </div>
                         {/if}
 
                         {#if videos.length > 0}
